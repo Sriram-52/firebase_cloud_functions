@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login</title>
+  </head>
+  <body>
+    <!-- The core Firebase JS SDK is always required and must be listed first -->
+    <script src="https://www.gstatic.com/firebasejs/8.6.3/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.6.3/firebase-auth.js"></script>
+
+    <!-- TODO: Add SDKs for Firebase products that you want to use
+     https://firebase.google.com/docs/web/setup#available-libraries -->
+
+    <script>
+      // Your web app's Firebase configuration
+      var firebaseConfig = {
+        apiKey: "AIzaSyBfmVCxfuAnvkBDL1vm4RAVgARgFVrg1r8",
+        authDomain: "todo-list-1dcf2.firebaseapp.com",
+        projectId: "todo-list-1dcf2",
+        storageBucket: "todo-list-1dcf2.appspot.com",
+        messagingSenderId: "719103631209",
+        appId: "1:719103631209:web:6ae5d9b0c271887d9ba7f8",
+      }
+      // Initialize Firebase
+      firebase.initializeApp(firebaseConfig)
+
+      async function onLogin(email, password) {
+        try {
+          const userRecord = await firebase.auth().signInWithEmailAndPassword(email, password)
+          const idToken = await userRecord.user.getIdToken()
+          console.log(idToken)
+        } catch (error) {
+          console.error(error)
+        }
+      }
+
+    </script>
+
+    <button onclick='onLogin("rammohan5a5@sasi.ac.in", "sasi@123")' >Login</button>
+
+  </body>
+</html>

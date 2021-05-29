@@ -1,5 +1,6 @@
 const router = require("express").Router()
 const Model = require("./model")
+const {closedend} = require("../../endpoints")
 
 router.post("/createUser",(req,res)=>{
     const inputs = req.body;
@@ -22,10 +23,10 @@ router.post("/createUser",(req,res)=>{
     })
 })
 
-router.patch("/updateUser",(req,res)=>{
+router.patch("/updateUser",closedend,(req,res)=>{
     const {uid}=req.query
     const inputs=req.body
-    const obj = new Model()
+    const obj = new Model(req.user)
     return obj._update_user(inputs,uid)
     .then(()=>{
         return res.status(202).json({ message: `User updated successfully`})
@@ -45,9 +46,9 @@ router.patch("/updateUser",(req,res)=>{
     })
 })
 
-router.get("/user",(req,res)=>{
+router.get("/user",closedend,(req,res)=>{
     const {uid}=req.query
-    const obj = new Model()
+    const obj = new Model(req.user)
     return obj._get_user(uid)
     .then((data)=>{
         return res.status(200).json({data})
@@ -62,9 +63,9 @@ router.get("/user",(req,res)=>{
     })
 })
 
-router.delete("/user",(req,res)=>{
+router.delete("/user",closedend,(req,res)=>{
     const {uid}=req.query
-    const obj = new Model()
+    const obj = new Model(req.user)
     return obj._delete_user(uid)
     .then(()=>{
         return res.status(200).json({message:`User deleted successfully`})
@@ -80,9 +81,9 @@ router.delete("/user",(req,res)=>{
     
 })
 
-router.put("/enableUser",async(req,res)=>{
+router.put("/enableUser",closedend, async(req,res)=>{
     const {uid}=req.query
-    const obj = new Model()
+    const obj = new Model(req.user)
     return obj._enable_user(uid)
     .then(()=>{
         return res.status(200).json({message:`User enabled successfully`})    })
@@ -97,6 +98,23 @@ router.put("/enableUser",async(req,res)=>{
         return res.status(422).json({ message:`Failed to enable user`})
     })
     
+})
+
+router.put("/changepassword",closedend,(req,res)=>{
+    const {password} = req.body
+    if(!password) {
+        return res.status(422).json({message:`Invalid password`})
+    }
+    const obj = new Model(req.user)
+    return obj._change_password(password)
+    .then(()=>{
+        return res.status(200).json({ message:`Password changed successfully for ${req.user.email}`})
+    })
+    .catch((err)=>{
+        console.error(err)
+        return res.status(500).json({ message:`Failed to change password`})
+       
+    })
 })
 
 

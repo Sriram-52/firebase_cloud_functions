@@ -89,6 +89,13 @@ class Model {
             })
     }
 
+    async _change_password(password) {
+        return admin.auth().updateUser(this.actionPerformer.uid,{password:password})
+        .catch((err)=>{
+            throw err
+        })
+    }
+
 }
 
 module.exports = Model

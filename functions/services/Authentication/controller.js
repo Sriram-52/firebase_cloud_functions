@@ -1,6 +1,6 @@
 const router = require("express").Router();
 const Model = require("./model");
-
+const { closedend } = require("../../endpoints");
 router.post("/createUser", (req, res) => {
   const inputs = req.body;
   const _create_user_obj = new Model();
@@ -46,7 +46,7 @@ router.post("/createUser", (req, res) => {
       return res.status(500).json({ message: `Failed to create the user` });
     });
 });
-router.patch("/updateUser", (req, res) => {
+router.patch("/updateUser", closedend, (req, res) => {
   const inputs = req.body;
   const { uid } = req.query;
   const obj = new Model();
@@ -78,9 +78,9 @@ router.patch("/updateUser", (req, res) => {
       return res.status(500).json({ message: "unable to update user" });
     });
 });
-router.get("/getUser", (req, res) => {
+router.get("/getUser", closedend, (req, res) => {
   const { uid } = req.query;
-  const obj = new Model();
+  const obj = new Model(req.user);
   return obj
     ._get_user(uid)
     .then((data) => {
@@ -100,7 +100,7 @@ router.get("/getUser", (req, res) => {
       return res.status(422).json({ message: `Failed to get user` });
     });
 });
-router.delete("/deleteUser", (req, res) => {
+router.delete("/deleteUser", closedend, (req, res) => {
   const { uid } = req.query;
   const obj = new Model();
   return obj
@@ -120,7 +120,7 @@ router.delete("/deleteUser", (req, res) => {
       return res.status(422).json({ message: `Failed to delete user` });
     });
 });
-router.put("/enableUser", (req, res) => {
+router.put("/enableUser", closedend, (req, res) => {
   const { uid } = req.query;
   const obj = new Model();
   return obj
@@ -140,11 +140,30 @@ router.get("/getAllUsersData", (req, res) => {
   return obj
     ._get_all_users_data()
     .then((usersData) => {
+      console.log(usersData);
       return res.status(200).json({ usersData });
     })
     .catch((err) => {
       console.log(err);
       return res.status(500).json({ message: "unable to get all users data" });
+    });
+});
+router.put("/updatePassword", closedend, (req, res) => {
+  const { password } = req.body;
+  if (!password) {
+    console.log(`invalid password`);
+  }
+  const obj = new Model(req.user);
+  return obj
+    ._update_password(password)
+    .then(() => {
+      return res.status(200).json({
+        message: `Password changed successfully for ${req.user.email}`,
+      });
+    })
+    .catch((err) => {
+      console.error(err);
+      return res.status(500).json({ message: `Failed to change password` });
     });
 });
 module.exports = router;

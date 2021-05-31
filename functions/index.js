@@ -48,8 +48,8 @@ app.patch("/updateUser", (req, res) => {
         return res.status(202).json({ message: "User updated successfully"})
     }).catch((err) => {
         console.error(err)
-        if(err.code === "auth/invalid-phone-number")
-        return res.status(422).json({message: "Invalid phone number attach country code along with number"})
+       // if(err.code === "auth/invalid-phone-number")
+       // return res.status(422).json({message: "Invalid phone number attach country code along with number"})
         if(err.code === "auth/invalid-uid")
         return res.status(422).json({message: "UID cannot be empty string" })
         if(err.code === "auth/user-not-found")

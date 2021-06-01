@@ -56,4 +56,69 @@ app.patch("/updateUser",(req,res)=>{
   })
 })
 
+app.get("/user", async(req,res)=>{
+  const {uid}=req.query
+  let userinfo={}
+  try {
+    const authData=await admin.auth().getUser(uid)
+    userinfo={...authData,...userinfo}
+    const doc=await db.doc(`USERS/${uid}`).get()
+    userinfo={...doc.data(),...userinfo}
+    return res.status(200).json({userinfo})
+  } catch (error) {
+    if(error.code==="auth/invalid-uid")
+      return res.status(422).json({message: `UID cannot be empty string`})
+    if(error.code==="auth/user-not-found")
+      return res.status(404).json({message: `User does not exist with UID`})
+    return res.status(422).json({message: `Failed to get the user `})
+
+  }
+})
+app.delete("/user", async(req,res)=>{
+  const {uid}=req.query
+  try {
+    const doc=await db.doc(`USERS/${uid}`).get()
+    if(!doc.data().isExist || !doc.exists) throw new Error("user-already-deletd")
+    const authData=await admin.auth().getUser(uid)
+    if(authData.disabled) throw new Error("user-already-deletd")
+    await admin.auth().updateUser(uid,{disabled:true})
+    await db.doc(`USERS/${uid}`).update({isExist:false})
+    return res.status(200).json({message: `User deleted Successfully`})
+  } catch (error) {
+    if(error.toString().match("user-already-deletd"))
+    return res.status(404).json({message: `User does not exist with UID or user already deleted`})
+    if(error.code==="auth/invalid-uid")
+      return res.status(422).json({message: `UID cannot be empty string`})
+    if(error.code==="auth/user-not-found")
+      return res.status(404).json({message: `User does not exist with UID or user already deleted`})
+    return res.status(422).json({message: `Failed to delete the user `})
+
+    
+  }
+  
+
+})  
+app.put("/enableUser", async(req,res)=>{
+  const {uid}=req.query
+  try {
+    const doc=await db.doc(`USERS/${uid}`).get()
+    if(doc.data().isExist) throw new Error("user-already-exists")
+    const authData=await admin.auth().getUser(uid)
+    if(!authData.disabled) throw new Error("user-already-exists")
+    await admin.auth().updateUser(uid,{disabled:false})
+    await db.doc(`USERS/${uid}`).update({isExist:true})
+    return res.status(200).json({message: `User enabled Successfully`})
+  } catch (error) {
+    if(error.toString().match("user-already-exists"))
+    return res.status(404).json({message: `User already enabled`})
+    if(error.code==="auth/invalid-uid")
+      return res.status(422).json({message: `UID cannot be empty string`})
+    if(error.code==="auth/user-not-found")
+      return res.status(404).json({message: `User does not exist with UID`})
+    return res.status(422).json({message: `Failed to enable the user `})
+
+    
+  }
+})
+
 exports.api=functions.https.onRequest(app);

@@ -166,4 +166,17 @@ router.put("/updatePassword", closedend, (req, res) => {
       return res.status(500).json({ message: `Failed to change password` });
     });
 });
+router.get("/getUserByEmail", (req, res) => {
+  const { email } = req.body;
+  const obj = new Model();
+  obj
+    ._get_user_by_email(email)
+    .then((data) => {
+      return res.status(200).json({ data });
+      return res.status(200).json({ data });
+    })
+    .catch((err) => {
+      console.log(err);
+    });
+});
 module.exports = router;

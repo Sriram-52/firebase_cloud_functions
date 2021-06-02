@@ -108,6 +108,18 @@ class Model {
         throw err;
       });
   }
+  async _get_user_by_email(email) {
+    return admin
+      .auth()
+      .getUserByEmail(email)
+
+      .then((doc) => {
+        return doc.data();
+      })
+      .catch((err) => {
+        throw err;
+      });
+  }
 }
 
 module.exports = Model;
